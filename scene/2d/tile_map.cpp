@@ -1194,6 +1194,7 @@ void TileMap::_rendering_update_layer(int p_layer) {
 	rs->canvas_item_set_default_texture_filter(ci, RS::CanvasItemTextureFilter(get_texture_filter_in_tree()));
 	rs->canvas_item_set_default_texture_repeat(ci, RS::CanvasItemTextureRepeat(get_texture_repeat_in_tree()));
 	rs->canvas_item_set_light_mask(ci, get_light_mask());
+	rs->canvas_item_set_visibility_layer(ci, get_visibility_layer());
 
 	Color layer_modulate = get_layer_modulate(p_layer);
 	if (selected_layer >= 0 && p_layer != selected_layer) {
@@ -1305,6 +1306,7 @@ void TileMap::_rendering_update_dirty_quadrants(SelfList<TileMapQuadrant>::List 
 
 						rs->canvas_item_set_default_texture_filter(ci, RS::CanvasItemTextureFilter(get_texture_filter_in_tree()));
 						rs->canvas_item_set_default_texture_repeat(ci, RS::CanvasItemTextureRepeat(get_texture_repeat_in_tree()));
+						rs->canvas_item_set_visibility_layer(ci, get_visibility_layer());
 
 						q.canvas_items.push_back(ci);
 
@@ -3907,6 +3909,31 @@ void TileMap::set_light_mask(int p_light_mask) {
 		}
 		_rendering_update_layer(layer);
 	}
+}
+
+void TileMap::_update_visibility_layer_for_canvas_items() {
+	for (unsigned int layer = 0; layer < layers.size(); layer++) {
+		for (KeyValue<Vector2i, TileMapQuadrant> &E : layers[layer].quadrant_map) {
+			TileMapQuadrant &q = E.value;
+			for (const RID &ci : q.canvas_items) {
+				RS::get_singleton()->canvas_item_set_visibility_layer(ci, get_visibility_layer());
+			}
+		}
+		_rendering_update_layer(layer);
+	}
+}
+
+void TileMap::set_visibility_layer(uint32_t p_visibility_layer) {
+	// Set material for the whole tilemap.
+	CanvasItem::set_visibility_layer(p_visibility_layer);
+
+	TileMap::_update_visibility_layer_for_canvas_items();
+}
+
+void TileMap::set_visibility_layer_bit(uint32_t p_visibility_layer, bool p_enable) {
+	CanvasItem::set_visibility_layer_bit(p_visibility_layer, p_enable);
+
+	TileMap::_update_visibility_layer_for_canvas_items();
 }
 
 void TileMap::set_material(const Ref<Material> &p_material) {

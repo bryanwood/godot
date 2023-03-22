@@ -286,6 +286,8 @@ private:
 	bool _tile_set_changed_deferred_update_needed = false;
 	void _tile_set_changed_deferred_update();
 
+	void _update_visibility_layer_for_canvas_items();
+
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -393,6 +395,8 @@ public:
 	virtual void set_use_parent_material(bool p_use_parent_material) override;
 	virtual void set_texture_filter(CanvasItem::TextureFilter p_texture_filter) override;
 	virtual void set_texture_repeat(CanvasItem::TextureRepeat p_texture_repeat) override;
+	virtual void set_visibility_layer(uint32_t p_visibility_layer) override;
+	virtual void set_visibility_layer_bit(uint32_t p_visibility_layer, bool p_enable) override;
 
 	// For finding tiles from collision.
 	Vector2i get_coords_for_body_rid(RID p_physics_body);
